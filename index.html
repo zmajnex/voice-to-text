@@ -4,122 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-
+<!-- <link rel="stylesheet" href="style.css"> -->
     <title>Voice search integration for Chrome</title>
 </head>
 <style>
-.mic-btn {
-    position: absolute;
-    background:#cb3f3a;
-    color:white;
-    z-index: 2;
-    left: 13%;
-    top: 11%;
-}
-.mic-btn:hover {
-   
-    box-shadow: 0px 0px 10px #cb3f3a;
-    background:white;
-    color:black;
-   
-}
-.circle {
-    border-radius: 50%;
-    padding: 30px;
-    cursor: pointer;  
-}
-.start-animation {
-  z-index:1;
-  border-radius: 50%;
-  background-color: #cb3f3a;
-  width: 150px;
-  height: 150px;
+/***** FINAL CSS ******/
+.block-search {
+  position: relative;
+  float:right;
+  margin-right:50px;
+} 
+.athena-mic {
   position: absolute;
-  right: -25px;
-  top: -25px;
-  opacity: 0;
-  animation: scaleIn 2s 5 cubic-bezier(.36, .11, .89, .32);
+    right: 5px;
+    font-size: 14px;
+    line-height: 1.5;
+    cursor:pointer;
 }
-@keyframes scaleIn {
-  from {
-    transform: scale(.5, .5);
-    opacity: .5;
-  }
-  to {
-    transform: scale(1, 1);
-    opacity: 0;
-  }
+.speak-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
 }
-#search {
-    line-height: 2.5;
-    border: 2px solid #cb3f3a;
-    width: 600px;
-    font-size: 1rem;
+.speak-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: 1s;
 }
-.mic-wrapper {
-    position: absolute;
-    right:20px;
-    display: inline-block;
-    height: 100px;
-    width: 100px;
-   /* background-color: black;*/
+.speak-modal-content p:first-child{
+  text-align: center;
+    font-size: 50px;
+    color: grey;
+    text-transform: uppercase;
+}
+ .pulse-circle-wrapper {
+   display: flex;
+   align-items: center;
+	justify-content: center;
+  margin: 100px auto;
+
+ }
+  .pulse-circle {
+	background-color: rgb(1, 164, 233);
+	border-radius: 50%;
+	
+	height: 100px;
+	width: 100px;
+}
+.animate {
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+	0% {
+		transform: scale(0.9);
+		box-shadow: 0 0 0 0 rgba(1, 164, 233, 0.7);
+	}
+	
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 50px rgba(255, 82, 82, 0);
+	}
+	
+	100% {
+		transform: scale(0.9);
+		box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+	}
 }
 </style>
 <body>
-  
+     <div class="block block-search">
+       <input id="search" type="text"/>
+       <!-- <i class="fas fa-microphone" aria-hidden="true"></i> -->
+     </div> 
+<!-- The Modal -->
+<div class="speak-modal">
+  <!-- Modal content -->
+  <div class="speak-modal-content">
     
-    <input id="search" type="text"/>
-      <div class="mic-wrapper">
-      <a class="mic-btn circle"><i class="fas fa-microphone fa-lg " aria-hidden="true"></i></a>
-       <div class="pulse"></div>
-    </div>
-
+    <p>Speak now</p>
+  <div class="pulse-circle-wrapper">
+    <div class="pulse-circle "></div>
+  </div>  
+  </div>
+</div>
 
 </body>
+<!-- jQuery -->
 <script
   src="https://code.jquery.com/jquery-3.5.1.js"
   integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
   crossorigin="anonymous"></script>
-<script>
 
+<!-- Speech Recogniton -->
+<script>
+//Add microphone to search bar
+$('#search').after('<i class="fas fa-microphone athena-mic " aria-hidden="true"></i>');
 try {
      SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
      recognition = new SpeechRecognition();
-    // $(".mic-btn").css("display","block");
 } catch (e) {
     console.error(e);
     // If not supported by browser do not display button
-    $(".mic-btn").css("display","none");
+    $(".athena-mic").css("display","none");
 
 }
 recognition.onstart = () => { 
-        console.log('Voice recognition started. Try speaking into the microphone.');
+      console.log('Voice recognition started. Try speaking into the microphone.');
     }
-$( ".mic-btn" ).click(function() {
+$( ".athena-mic" ).click(function() {
   // start recognition
   recognition.start();
  // Clear input field
  $('#search').val('');
  // Add placeholder
- $("#search").attr("placeholder", "Speak now");
- // Add pulse animation
- //$(".pulse").addClass('start-animation');
- $(".pulse").toggleClass('start-animation');
+ // Open modal box
+ $(".speak-modal").css("display","block");
+
 });
-// Recognition
-recognition.onstart = function() {
-    console.log("Voice recognition started. Try speaking into the microphone.");
-  };
-  
   recognition.onresult = function(event) {
     var transcript = event.results[0][0].transcript;
     $("#search").val("");
     $("#search").val(transcript);
-    $(".pulse").removeClass('start-animation');
-    console.log(transcript);
   };
+  recognition.onend = function() {
+    $(".speak-modal").css("display","none");
+    $('.pulse-circle').removeClass('animate'); 
+}
+//start equlizer on speech start 
+recognition.onspeechstart = function() {
+ $('.pulse-circle').addClass('animate');
   
- 
-
+}
 </script>
+
+
 </html>
